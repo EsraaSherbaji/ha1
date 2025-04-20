@@ -38,12 +38,10 @@ public class Calculator {
 
     /**
      * Führt die Funktion der C- oder CE-Taste aus:
-     *
-     * - Beim ersten Drücken wird nur der Bildschirm gelöscht (zeigt "0"),
-     *   gespeicherte Werte und Operationen bleiben erhalten.
-     *
-     * - Beim zweiten Drücken hintereinander wird alles zurückgesetzt:
-     *   Bildschirm, gespeicherte Werte und letzte Operation.
+     * Beim ersten Drücken wird nur der Bildschirm gelöscht (zeigt "0"),
+     * gespeicherte Werte und Operationen bleiben erhalten.
+     * Beim zweiten Drücken hintereinander wird alles zurückgesetzt:
+     * Bildschirm, gespeicherte Werte und letzte Operation.
      */
 
     private boolean clearPressedOnce = false;
