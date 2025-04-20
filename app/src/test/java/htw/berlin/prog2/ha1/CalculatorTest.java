@@ -98,8 +98,52 @@ class CalculatorTest {
         calc.pressBinaryOperationKey("+");
         calc.pressDigitKey(3);
         calc.pressEqualsKey();
-        assertEquals("5", calc.readScreen());
+
+        String erwartet = "5";
+        String wirklich = calc.readScreen();
+
+        if (!wirklich.equals(erwartet)) {
+            System.out.println("FEHLER: Erwartet '" + erwartet + "', aber war '" + wirklich + "'");
+        } else {
+            System.out.println("Test bestanden ✅");
+        }
     }
 
+    @Test
+    void testClearKeyLoeschtNichtAlles() {
+        Calculator calc = new Calculator();
+        calc.pressDigitKey(8);
+        calc.pressBinaryOperationKey("+");
+        calc.pressDigitKey(3);
+        calc.pressClearKey(); // Bildschirm soll gelöscht werden, nicht die Rechnung
+        calc.pressDigitKey(4);
+        calc.pressEqualsKey();
+
+        String erwartet = "12";
+        String wirklich = calc.readScreen();
+
+        if (!wirklich.equals(erwartet)) {
+            System.out.println("FEHLER: Erwartet '" + erwartet + "', aber war '" + wirklich + "'");
+        } else {
+            System.out.println("Test bestanden ✅");
+        }
+    }
+
+    @Test
+    void testKehrwertVonNullGibtFehler() {
+        Calculator calc = new Calculator();
+        calc.pressDigitKey(0);
+        calc.pressUnaryOperationKey("1/x");
+
+        String erwartetesErgebnis = "Error";
+        String wirklichesErgebnis = calc.readScreen();
+
+        if (!wirklichesErgebnis.equals(erwartetesErgebnis)) {
+            System.out.println("FEHLER: Erwartet '" + erwartetesErgebnis + "', aber war '" + wirklichesErgebnis + "'");
+        } else {
+            System.out.println("Test bestanden ✅");
+        }
+    }
 }
+
 

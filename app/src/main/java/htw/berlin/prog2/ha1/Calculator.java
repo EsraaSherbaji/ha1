@@ -37,18 +37,29 @@ public class Calculator {
     }
 
     /**
-     * Empfängt den Befehl der C- bzw. CE-Taste (Clear bzw. Clear Entry).
-     * Einmaliges Drücken der Taste löscht die zuvor eingegebenen Ziffern auf dem Bildschirm
-     * so dass "0" angezeigt wird, jedoch ohne zuvor zwischengespeicherte Werte zu löschen.
-     * Wird daraufhin noch einmal die Taste gedrückt, dann werden auch zwischengespeicherte
-     * Werte sowie der aktuelle Operationsmodus zurückgesetzt, so dass der Rechner wieder
-     * im Ursprungszustand ist.
+     * Führt die Funktion der C- oder CE-Taste aus:
+     *
+     * - Beim ersten Drücken wird nur der Bildschirm gelöscht (zeigt "0"),
+     *   gespeicherte Werte und Operationen bleiben erhalten.
+     *
+     * - Beim zweiten Drücken hintereinander wird alles zurückgesetzt:
+     *   Bildschirm, gespeicherte Werte und letzte Operation.
      */
+
+    private boolean clearPressedOnce = false;
+
     public void pressClearKey() {
-        screen = "0";
-        latestOperation = "";
-        latestValue = 0.0;
+        if (!clearPressedOnce) {
+            screen = "0";
+            clearPressedOnce = true;
+        } else {
+            screen = "0";
+            latestOperation = "";
+            latestValue = 0.0;
+            clearPressedOnce = false;
+        }
     }
+
 
     /**
      * Empfängt den Wert einer gedrückten binären Operationstaste, also eine der vier Operationen
@@ -63,28 +74,34 @@ public class Calculator {
         latestValue = Double.parseDouble(screen);
         latestOperation = operation;
     }
-
     /**
-     * Empfängt den Wert einer gedrückten unären Operationstaste, also eine der drei Operationen
-     * Quadratwurzel, Prozent, Inversion, welche nur einen Operanden benötigen.
-     * Beim Drücken der Taste wird direkt die Operation auf den aktuellen Zahlenwert angewendet und
-     * der Bildschirminhalt mit dem Ergebnis aktualisiert.
-     * @param operation "√" für Quadratwurzel, "%" für Prozent, "1/x" für Inversion
+     * Rechnet Wurzel, Prozent oder Kehrwert vom aktuellen Wert.
+     * Wenn "1/x" mit 0 gemacht wird, zeigt der Bildschirm "Error".
      */
     public void pressUnaryOperationKey(String operation) {
-        latestValue = Double.parseDouble(screen);
-        latestOperation = operation;
-        var result = switch(operation) {
-            case "√" -> Math.sqrt(Double.parseDouble(screen));
-            case "%" -> Double.parseDouble(screen) / 100;
-            case "1/x" -> 1 / Double.parseDouble(screen);
-            default -> throw new IllegalArgumentException();
-        };
-        screen = Double.toString(result);
-        if(screen.equals("NaN")) screen = "Error";
-        if(screen.contains(".") && screen.length() > 11) screen = screen.substring(0, 10);
+        double value = Double.parseDouble(screen);
+        double result = 0;
 
+        if (operation.equals("√")) {
+            result = Math.sqrt(value);
+        } else if (operation.equals("%")) {
+            result = value / 100;
+        } else if (operation.equals("1/x")) {
+            if (value == 0) {
+                screen = "Error";
+                return;
+            } else {
+                result = 1 / value;
+            }
+        } else {
+            screen = "Error";
+            return;
+        }
+
+        screen = Double.toString(result);
     }
+
+
 
     /**
      * Empfängt den Befehl der gedrückten Dezimaltrennzeichentaste, im Englischen üblicherweise "."
@@ -118,16 +135,49 @@ public class Calculator {
      * und das Ergebnis direkt angezeigt.
      */
     public void pressEqualsKey() {
-        var result = switch(latestOperation) {
-            case "+" -> latestValue + Double.parseDouble(screen);
-            case "-" -> latestValue - Double.parseDouble(screen);
-            case "x" -> latestValue * Double.parseDouble(screen);
-            case "/" -> latestValue / Double.parseDouble(screen);
-            default -> throw new IllegalArgumentException();
-        };
+        double result = 0;
+
+        // Berechne das Ergebnis je nach gewählter Operation
+        switch(latestOperation) {
+            case "+":
+                result = latestValue + Double.parseDouble(screen);
+                break;
+            case "-":
+                result = latestValue - Double.parseDouble(screen);
+                break;
+            case "x":
+                result = latestValue * Double.parseDouble(screen);
+                break;
+            case "/":
+                // Prüfen auf Division durch 0
+                if (Double.parseDouble(screen) == 0) {
+                    screen = "Error";  // Division durch Null ergibt Error
+                    return;
+                }
+                result = latestValue / Double.parseDouble(screen);
+                break;
+            default:
+                // Wenn keine gültige Operation gesetzt ist, gebe einen Fehler aus
+                throw new IllegalArgumentException("Ungültige Operation");
+        }
+
+        // Setze das Ergebnis als Bildschirmwert
         screen = Double.toString(result);
-        if(screen.equals("Infinity")) screen = "Error";
-        if(screen.endsWith(".0")) screen = screen.substring(0,screen.length()-2);
-        if(screen.contains(".") && screen.length() > 11) screen = screen.substring(0, 10);
+
+        // Entferne unnötige Nachkommastellen (z. B. ".0")
+        if (screen.endsWith(".0")) {
+            screen = screen.substring(0, screen.length() - 2);
+        }
+
+        // Wenn das Ergebnis zu lang ist, beschränke es auf 10 Zeichen
+        if (screen.contains(".") && screen.length() > 11) {
+            screen = screen.substring(0, 10);
+        }
+
+        // Falls das Ergebnis "Infinity" oder "NaN" ist, zeige "Error" an
+        if (screen.equals("Infinity") || screen.equals("NaN")) {
+            screen = "Error";
+        }
     }
+
 }
