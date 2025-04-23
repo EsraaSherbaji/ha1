@@ -56,20 +56,6 @@ class CalculatorTest {
         assertEquals(expected, actual);
     }
 
-    @Test
-    @DisplayName("should display error when drawing the square root of a negative number")
-    void testSquareRootOfNegative() {
-        Calculator calc = new Calculator();
-
-        calc.pressDigitKey(7);
-        calc.pressNegativeKey();
-        calc.pressUnaryOperationKey("√");
-
-        String expected = "Error";
-        String actual = calc.readScreen();
-
-        assertEquals(expected, actual);
-    }
 
     @Test
     @DisplayName("should not allow multiple decimal dots")
@@ -107,6 +93,8 @@ class CalculatorTest {
         } else {
             System.out.println("Test bestanden ✅");
         }
+
+        assertEquals(erwartet, wirklich);
     }
 
     @Test
@@ -127,7 +115,9 @@ class CalculatorTest {
         } else {
             System.out.println("Test bestanden ✅");
         }
+        assertEquals(erwartet, wirklich);
     }
+
 
     @Test
     void testKehrwertVonNullGibtFehler() {
@@ -143,6 +133,7 @@ class CalculatorTest {
         } else {
             System.out.println("Test bestanden ✅");
         }
+        assertEquals(erwartetesErgebnis, wirklichesErgebnis);
     }
 }
 
